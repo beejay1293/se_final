@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -160,5 +161,72 @@ public class SalesController {
         List<SalesSummary> salesSummary = salesSummaryService.findAll();
         model.addAttribute("salesSummary", salesSummary);
         return "sales-summary";
+    }
+
+    @GetMapping("/sales/compound-interest")
+    public String getCompoundInterest(@RequestParam("id") long saleId, Model model) {
+        Optional<Sales> sale = salesService.findSaleById(saleId);
+
+        if (sale.isPresent()) {
+            Sales sales = sale.get();
+            double startingAmount = sales.getAmount();
+            double interestRate;
+
+            // Determine the interest rate based on the product type
+            if (sales.getProductType() == ProductType.REFRIGERATOR) {
+                interestRate = 0.15;
+            } else {
+                interestRate = 0.10;
+            }
+
+            // Create a list to store compound interest calculations for 5 years
+            List<CompoundInterestResult> compoundInterestResults = new ArrayList<>();
+
+            // Calculate compound interest for 5 years
+            for (int year = 1; year <= 5; year++) {
+                double interest = startingAmount * interestRate;
+                double endingBalance = startingAmount + interest;
+
+                compoundInterestResults.add(new CompoundInterestResult(year, startingAmount, interest, endingBalance));
+
+                // Use the ending balance of the current year as the starting amount for the next year
+                startingAmount = endingBalance;
+            }
+
+            model.addAttribute("compoundInterestResults", compoundInterestResults);
+        } else {
+            model.addAttribute("error", "Sale not found");
+        }
+        return "compound-interest";
+    }
+
+    // Data structure to hold compound interest calculation results
+    @Getter
+    @Setter
+    public static class CompoundInterestResult {
+        // Getters and Setters
+        private int year;
+        private double startingAmount;
+        private double interest;
+        private double endingBalance;
+
+        public CompoundInterestResult(int year, double startingAmount, double interest, double endingBalance) {
+            this.year = year;
+            this.startingAmount = startingAmount;
+            this.interest = interest;
+            this.endingBalance = endingBalance;
+        }
+
+        public String getStartingAmount() {
+            return String.format("%.2f", startingAmount);
+        }
+
+        public String getInterest() {
+            return String.format("%.2f", interest);
+        }
+
+        public String getEndingBalance() {
+            return String.format("%.2f", endingBalance);
+        }
     }
 }
