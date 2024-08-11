@@ -24,9 +24,9 @@
         <!-- Iterate through the sales summary and display each summary -->
         <tr th:each="sale : ${salesSummary}">
             <td th:text="${sale.salesmanName}"></td>
-            <td th:text="${sale.washingMachineAmountSold}"></td>
-            <td th:text="${sale.refrigeratorAmountSold}"></td>
-            <td th:text="${sale.musicSystemAmountSold}"></td>
+            <td th:text="${sale.getWashingMachineAmountSold()}"></td>
+            <td th:text="${sale.getRefrigeratorAmountSold()}"></td>
+            <td th:text="${sale.getMusicSystemAmountSold()}"></td>
         </tr>
         </tbody>
     </table>

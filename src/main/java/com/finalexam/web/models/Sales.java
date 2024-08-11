@@ -46,7 +46,9 @@ public class Sales {
     private String transactionCode;
 
     // Constructors, getters, and setters
-
+    public String getAmountIn2F() {
+        return String.format("%.2f", amount);
+    }
     public Sales() {
         this.transactionDate = LocalDate.now();
         this.transactionCode = generateTransactionCode();

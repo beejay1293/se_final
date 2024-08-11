@@ -53,6 +53,9 @@ public class SalesController {
     public String listSales(Model model) {
         List<Sales> sales = salesService.findAllSales();
         model.addAttribute("sales", sales);
+        model.addAttribute("refrigerator", ProductType.REFRIGERATOR);
+        model.addAttribute("music_system", ProductType.MUSIC_SYSTEM);
+        model.addAttribute("washing_machine", ProductType.WASHING_MACHINE);
         return "sales";
     }
 
@@ -61,6 +64,9 @@ public class SalesController {
         if (result.hasErrors()) {
             logger.error("Error {}  exists", result.getAllErrors());
             model.addAttribute("sale", sales);
+            model.addAttribute("refrigerator", ProductType.REFRIGERATOR);
+            model.addAttribute("music_system", ProductType.MUSIC_SYSTEM);
+            model.addAttribute("washing_machine", ProductType.WASHING_MACHINE);
             return "sales-form";
         }
 
@@ -127,9 +133,17 @@ public class SalesController {
     @DeleteMapping("/sales/{saleId}")
     public ResponseEntity<?> deleteSale(@PathVariable("saleId") long saleId) {
         logger.info("SaleID: {}", saleId);
-
-        if (salesService.findSaleById(saleId).isEmpty()) {
+        Optional<Sales> s = salesService.findSaleById(saleId);
+        if (s.isEmpty()) {
             return new ResponseEntity<>(new ErrorResponse("Sale not found"), HttpStatus.BAD_REQUEST);
+        } else {
+            Double amount = s.get().getAmount();
+            if (amount != null) {
+                double deduction = -amount;
+                createOrUpdateSalesSummary(s.get().getSalesmanName(), s.get().getProductType(), deduction);
+            } else {
+                return new ResponseEntity<>(new ErrorResponse("Sale amount is null"), HttpStatus.BAD_REQUEST);
+            }
         }
 
         salesService.deleteSale(saleId);

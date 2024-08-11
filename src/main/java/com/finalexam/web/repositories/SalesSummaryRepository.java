@@ -1,4 +1,4 @@
-package com.finalexam.web.repository;
+package com.finalexam.web.repositories;
 
 import com.finalexam.web.models.SalesSummary;
 import org.springframework.data.jpa.repository.JpaRepository;

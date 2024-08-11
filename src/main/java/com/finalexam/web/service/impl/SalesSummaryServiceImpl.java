@@ -1,7 +1,7 @@
 package com.finalexam.web.service.impl;
 
 import com.finalexam.web.models.SalesSummary;
-import com.finalexam.web.repository.SalesSummaryRepository;
+import com.finalexam.web.repositories.SalesSummaryRepository;
 import com.finalexam.web.service.SalesSummaryService;
 import org.springframework.stereotype.Service;
 
