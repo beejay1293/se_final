@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Reservation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var errorMsg = /*[[${seatTakenError}]]*/ 'Seat already taken';
+    if (errorMsg === "Seat already taken") {
+        alert(errorMsg);
+    }
+    /*]]>*/
+</script>
+
+<div class="container mt-5">
+
+    <h1>Seats Reservation System</h1>
+
+
+    <section>
+        <table class="table mt-5 mb-5">
+            <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${seats}">
+                    <td th:each="seat : ${row}" th:text="${seat}"></td>
+                </tr>
+            </tbody>
+        </table>
+        <h1 th:text="'There are ' + ${remainingSeats} + ' remaining seats'"></h1>
+        <form method="post" th:action="@{/}" th:object="${customer}" class="mt-5" onsubmit="return validateSeatNumber()">
+            <input type="hidden" th:field="*{id}">
+            <div class="mb-3" >
+                <label for="seatno" class="form-label">Seat Code</label>
+                <input  type="text" id="seatno" name="seatno" class="form-control" th:field="*{seatNumber}" placeholder="Seat Number" required >
+                <p th:if="${#fields.hasErrors('seatNumber')}" class="text-danger"  th:errors="*{seatNumber}"></p>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Customer Name:</label>
+                <input type="text" id="name" name="name" class="form-control" th:field="*{name}" placeholder="Name" required />
+                <p th:if="${#fields.hasErrors('name')}" class="text-danger"  th:errors="*{name}"></p>
+            </div>
+            <div class="mb-3">
+                <label for="date" class="form-label">Transaction Date:</label>
+                <input type="date" id="date" name="date" class="form-control" th:field="*{TDate}" placeholder="Date" required />
+                <p th:if="${#fields.hasErrors('TDate')}" class="text-danger" th:errors="*{TDate}"></p>
+            </div>
+            <button type="submit" class="btn btn-primary">Reserve</button>
+        </form>
+    </section>
+
+   <section>
+       <table class="table mt-5">
+           <thead>
+           <tr>
+               <th>Transaction Code</th>
+               <th>Date</th>
+               <th>Seat Number</th>
+               <th>Name</th>
+               <th>Actions</th>
+           </tr>
+           </thead>
+           <tbody>
+           <!-- Iterate through the customer list and display each customer -->
+           <tr th:each="customer : ${customers}">
+               <td th:text="${customer.transactionCode}"></td>
+               <td th:text="${customer.TDate}"></td>
+               <td th:text="${customer.seatNumber}"></td>
+               <td th:text="${customer.name}"></td>
+               <td>
+                   <a th:attr="onclick='confirmDelete(' + ${customer.id} + ')'" class="btn btn-danger">Delete</a>
+                   <a th:href="@{/customer/edit(id=${customer.id})}" class="btn btn-warning">Edit</a>
+               </td>
+           </tr>
+           </tbody>
+       </table>
+   </section>
+</div>
+<script>
+    function confirmDelete(customerId) {
+        const confirmAction = confirm("Are you sure you want to delete the data?");
+        if (confirmAction) {
+            fetch(`/customer/${customerId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.error("Data", data);
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'An error occurred while deleting the item.');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert('An error occurred while deleting the item.');
+                });
+        }
+    }
+
+        function validateSeatNumber() {
+        const seatCode = document.getElementById('seatno').value;
+
+        // Function to validate the seat code format
+        function validateSeatCodeFormat(seatCode) {
+        if (!seatCode || seatCode.length !== 2) {
+        return false;
+    }
+
+        const firstChar = seatCode.charAt(0);
+        const secondChar = seatCode.charAt(1);
+
+        const isFirstCharValid = firstChar >= '1' && firstChar <= '5';
+        const isSecondCharValid = secondChar >= 'A' && secondChar <= 'E';
+
+        return isFirstCharValid && isSecondCharValid;
+    }
+
+        if (!validateSeatCodeFormat(seatCode)) {
+        alert("Please follow the seat code format");
+        return false; // Prevent form submission
+    }
+
+        return true; // Allow form submission
+    }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
